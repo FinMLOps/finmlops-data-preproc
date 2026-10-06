@@ -1,0 +1,42 @@
+{
+  "model": "ProsusAI/finbert",
+  "dataset": "atrost/financial_phrasebank",
+  "split": "test",
+  "n": 970,
+  "macro_f1": 0.8560822020792368,
+  "macro_precision": 0.8311588505183242,
+  "macro_recall": 0.8931142014327854,
+  "per_class": {
+    "negative": {
+      "precision": 0.7547169811320755,
+      "recall": 0.96,
+      "f1-score": 0.8450704225352113,
+      "support": 125.0
+    },
+    "neutral": {
+      "precision": 0.9438877755511023,
+      "recall": 0.8336283185840708,
+      "f1-score": 0.8853383458646616,
+      "support": 565.0
+    },
+    "positive": {
+      "precision": 0.7948717948717948,
+      "recall": 0.8857142857142857,
+      "f1-score": 0.8378378378378378,
+      "support": 280.0
+    },
+    "accuracy": 0.8649484536082475,
+    "macro avg": {
+      "precision": 0.8311588505183242,
+      "recall": 0.8931142014327854,
+      "f1-score": 0.8560822020792368,
+      "support": 970.0
+    },
+    "weighted avg": {
+      "precision": 0.8764951735999843,
+      "recall": 0.8649484536082475,
+      "f1-score": 0.8664376936340513,
+      "support": 970.0
+    }
+  }
+}

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
@@ -7,8 +9,10 @@ class SentimentAnalysisModel:
         """
         Initializes and loads the sentiment analysis model and tokenizer.
         """
-        if model_name != "ProsusAI/finbert":
-            raise ValueError("Only 'ProsusAI/finbert' model is allowed.")
+        if model_name != "ProsusAI/finbert" and not Path(model_name).is_dir():
+            raise ValueError(
+                "Only 'ProsusAI/finbert' or a local model directory is allowed."
+            )
         if torch.cuda.is_available():
             self.device = torch.device("cuda")
         elif torch.backends.mps.is_available():

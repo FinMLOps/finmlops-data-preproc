@@ -5,8 +5,10 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "datasets>=5.1.0",
     "python-dotenv>=1.2.4",
     "requests>=2.34.2",
+    "scikit-learn>=1.9.1",
     "torch>=2.14.1",
     "transformers>=5.18.0",
 ]

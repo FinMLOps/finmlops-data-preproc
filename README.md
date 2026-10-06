@@ -2,6 +2,9 @@
 
 Collects raw financial news from Marketaux and Finnhub.
 
+> [!IMPORTANT]
+> This project uses [uv](https://docs.astral.sh/uv/). Install with `uv sync --frozen`, run with `uv run`, add packages with `uv add`.
+
 ## Project structure
 
 ```
@@ -11,20 +14,20 @@ Collects raw financial news from Marketaux and Finnhub.
 │   │   ├── marketaux.py  # Marketaux news collector
 │   │   └── finnhub.py    # Finnhub company-news collector
 │   ├── finbert.py        # FinBERT sentiment model wrapper
-│   └── try_finbert.py    # score a single text from the command line
+│   ├── try_finbert.py    # score a single text from the command line
+│   └── eval_phrasebank.py # score a model on the Financial PhraseBank test split
 ├── pyproject.toml        # dependencies
 ├── uv.lock               # pinned versions
 ├── .python-version       # Python version for uv
 ├── .env.example          # template for API keys
 ├── .env                  # your real keys (gitignored)
+├── results/              # evaluation metrics
 └── data/                 # collected output (gitignored)
-    ├── marketaux/YYYY-MM-DD/<timestamp>Z_<symbols>.json
+    ├── marketaux/date=YYYY-MM-DD/<timestamp>Z_<symbols>.json
     └── finnhub/date=YYYY-MM-DD/<timestamp>Z_<symbol>.json
 ```
 
 ## Setup
-
-Requires [uv](https://docs.astral.sh/uv/). It reads `.python-version` and `uv.lock` to pin the Python and package versions, keeping the environment reproducible and stable across machines.
 
 ```bash
 git clone https://github.com/FinMLOps/finmlops-data-preproc
@@ -32,13 +35,13 @@ cd finmlops-data-preproc
 uv sync --frozen
 ```
 
-`uv sync --frozen` installs exactly what is in `uv.lock` into `.venv`, and uv fetches the right Python if you don't have it.
+`uv sync --frozen` installs the exact versions pinned in `uv.lock`, so everyone gets the same environment.
 
-To add a dependency, use `uv add <package>` and commit the updated `pyproject.toml` and `uv.lock`.
+After `uv add <package>`, commit `pyproject.toml` and `uv.lock`.
 
 ## API keys
 
-Get free keys from [Marketaux](https://www.marketaux.com) and [Finnhub](https://finnhub.io), copy `.env.example` to `.env`, and fill in the API tokens there.
+Get free keys from [Marketaux](https://www.marketaux.com) and [Finnhub](https://finnhub.io), then copy `.env.example` to `.env` and add them.
 
 ## Run
 
@@ -52,7 +55,7 @@ uv run python src/fetch/marketaux.py --symbols TSLA,AAPL
 uv run python src/fetch/finnhub.py --symbols TSLA,AAPL --from 2026-10-01 --to 2026-10-05
 ```
 
-Output is pretty-printed JSON, one folder per collection day (UTC).
+Output is pretty-printed JSON, one folder per UTC day.
 
 ### Try FinBERT on one text
 
@@ -60,4 +63,18 @@ Output is pretty-printed JSON, one folder per collection day (UTC).
 uv run python src/try_finbert.py "Tesla beats earnings, stock surges"
 ```
 
-Prints the positive, negative and neutral scores plus the verdict. The first run downloads the model (several hundred MB).
+Prints all three scores and a verdict. The first run downloads the model.
+
+### Evaluate a model (baseline)
+
+```bash
+# pretrained FinBERT baseline -> results/baseline_phrasebank.json
+uv run python src/eval_phrasebank.py
+
+# a fine-tuned model (local HF-format directory), saved to a separate file
+uv run python src/eval_phrasebank.py --model path/to/finetuned --out results/finetuned_phrasebank.json
+```
+
+Scores the fixed test split of [Financial PhraseBank](https://huggingface.co/datasets/atrost/financial_phrasebank), so runs compare directly. FinBERT trained on PhraseBank, so treat the baseline as an upper bound, not a measure on new news.
+
+A fine-tuned model must be a full Hugging Face directory. For LoRA, run `merge_and_unload()` and then `save_pretrained`.
